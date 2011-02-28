@@ -38,7 +38,7 @@ Produces: `[ 2, 3, 4 ]`
 
 Produces: `[ 2, 3 ]`
 
-## reduce (also `foldl`)
+## reduce (also foldl)
 
     zo([1, 2, 3])
         .reduce(0, function (sum, item, foldInto) {
