@@ -3,11 +3,14 @@
     "version": "0.0.1",
     "description": "asynchronous query language, for the usual functional list processing functions: map, select, reduce, but async-friendly",
     "maintainers": [
-        "name": "Tim Macfarlane",
-        "email": "timmacfarlane@gmail.com",
-        "web": "http://blog.refractalize.org"
+        {
+            "name": "Tim Macfarlane",
+            "email": "timmacfarlane@gmail.com",
+            "web": "http://blog.refractalize.org"
+        }
     ],
-    "dependencies": [
+    "main": "zo.js",
+    "dependencies": {
         "underscore": "1.1.4"
-    ]
+    }
 }
