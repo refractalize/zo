@@ -41,8 +41,8 @@ Produces: `[ 2, 3 ]`
 ## reduce (also foldl)
 
     zo([1, 2, 3])
-        .reduce(0, function (sum, item, foldInto) {
-            foldInto(sum + item);
+        .reduce(0, function (sum, item, reduceInto) {
+            reduceInto(sum + item);
         })
         .results(function (sum) {
             console.log(sum);
