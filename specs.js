@@ -1,5 +1,5 @@
 var assert = require('assert');
-var zo = require('./zo').zo;
+var zo = require('zo').zo;
 require('../cupoftea/cupoftea');
 
 spec('integers', function () {
