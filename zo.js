@@ -32,38 +32,38 @@ var zo = function (items, pipeline) {
         return zo(items, pipeline);
     };
 
-    var foldElement = function (first, folder, mapItems) {
+    var foldl = function (first, folder) {
         pipeline.push(function (items, next) {
-            var n = items.length;
-            var foldedResult = first;
-
-            if (n > 0) {
-                _(mapItems(items)).each(function (item) {
-                    folder(foldedResult, item, function (folded) {
-                        foldedResult = folded;
-                        n--;
-                        if (n == 0) {
-                            next(foldedResult);
-                        }
+            var xyz = function (foldedResult, index, items, next) {
+                if (index >= items.length) {
+                    next(foldedResult);
+                } else {
+                    folder(foldedResult, items[index], function (folded) {
+                        xyz(folded, index + 1, items, next);
                     });
-                });
-            } else {
-                next(foldedResult);
-            }
+                }
+            };
+
+            xyz(first, 0, items, next);
         });
         return zo(items, pipeline);
     };
 
-    var foldl = function (first, folder) {
-        return foldElement(first, folder, function (items) {
-            return items;
-        });
-    };
-
     var foldr = function (first, folder) {
-        return foldElement(first, folder, function (items) {
-            return _(items).reverse();
+        pipeline.push(function (items, next) {
+            var xyz = function (foldedResult, index, items, next) {
+                if (index < 0) {
+                    next(foldedResult);
+                } else {
+                    folder(foldedResult, items[index], function (folded) {
+                        xyz(folded, index - 1, items, next);
+                    });
+                }
+            };
+
+            xyz(first, items.length - 1, items, next);
         });
+        return zo(items, pipeline);
     };
 
     return {
