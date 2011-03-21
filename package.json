@@ -9,6 +9,13 @@
             "web": "http://blog.refractalize.org"
         }
     ],
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/refractalize/zo.git"
+    },
+    "files": [
+        "zo.js"
+    ],
     "main": "zo.js",
     "dependencies": {
         "underscore": "1.1.4"
