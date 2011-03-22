@@ -57,3 +57,17 @@ spec('reduce right', function () {
         }).results(shouldCall(assertCorrectResult));
     });
 });
+
+spec('callstack', function () {
+    var items = [];
+    var numberOfItems = 10000000;
+    for (var n = 0; n < numberOfItems; n++) {
+        items.push(n);
+    }
+
+    zo(items).reduce(0, function (memo, item, into) {
+        into(memo + 1);
+    }).results(shouldCall(function (res) {
+        assert.equal(res, numberOfItems);
+    }));
+});

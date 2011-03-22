@@ -32,19 +32,28 @@ var zo = function (items, pipeline) {
         return zo(items, pipeline);
     };
 
+    var trampoline = function (f) {
+        var next;
+        do {
+            next = f();
+        } while (next);
+    };
+
     var foldl = function (first, folder) {
         pipeline.push(function (items, next) {
-            var xyz = function (foldedResult, index, items, next) {
+            var fold = function (foldedResult, index, items, next) {
                 if (index >= items.length) {
                     next(foldedResult);
                 } else {
                     folder(foldedResult, items[index], function (folded) {
-                        xyz(folded, index + 1, items, next);
+                        process.nextTick(function () {
+                            fold(folded, index + 1, items, next);
+                        });
                     });
                 }
             };
 
-            xyz(first, 0, items, next);
+            fold(first, 0, items, next);
         });
         return zo(items, pipeline);
     };
