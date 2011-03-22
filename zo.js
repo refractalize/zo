@@ -60,17 +60,19 @@ var zo = function (items, pipeline) {
 
     var foldr = function (first, folder) {
         pipeline.push(function (items, next) {
-            var xyz = function (foldedResult, index, items, next) {
+            var fold = function (foldedResult, index, items, next) {
                 if (index < 0) {
                     next(foldedResult);
                 } else {
                     folder(foldedResult, items[index], function (folded) {
-                        xyz(folded, index - 1, items, next);
+                        process.nextTick(function () {
+                            fold(folded, index - 1, items, next);
+                        });
                     });
                 }
             };
 
-            xyz(first, items.length - 1, items, next);
+            fold(first, items.length - 1, items, next);
         });
         return zo(items, pipeline);
     };
