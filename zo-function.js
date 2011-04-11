@@ -1,6 +1,4 @@
-var _ = require('underscore');
-
-var zo = function (items, pipeline) {
+function (items, pipeline) {
     pipeline = (pipeline || []);
 
     var runPipeline = function (items, funcs) {
@@ -105,5 +103,3 @@ var zo = function (items, pipeline) {
         },
     };
 };
-
-exports.zo = zo;
