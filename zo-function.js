@@ -8,33 +8,48 @@ function (items, pipeline) {
         }
     }
 
-    var pipelineElement = function (processItem, addItem) {
+    var pipelineElement = function (processItem, addItem, options) {
+		options = (options || {});
+		var maxOutstandingProcesses = options.limit;
         pipeline.push(function (items, next) {
             var n = items.length;
             var processedItems = [];
+			var pendingProcesses = [];
+			var outstandingProcesses = 0;
+
+			var canStartAnotherProcess = function () {
+				return !maxOutstandingProcesses || outstandingProcesses < maxOutstandingProcesses;
+			}
 
             if (n > 0) {
                 _(items).each(function (item) {
-                    processItem(item, function (processedItem) {
-                        addItem(processedItems, item, processedItem);
-                        n--;
-                        if (n == 0) {
-                            next(processedItems);
-                        }
-                    });
+					var process = function (doPending) {
+						outstandingProcesses++;
+	                    processItem(item, function (processedItem) {
+	                        addItem(processedItems, item, processedItem);
+	                        n--;
+							outstandingProcesses--;
+							var pendingProcess = pendingProcesses.shift();
+							if (canStartAnotherProcess() && pendingProcess) {
+								pendingProcess();
+							}
+	                        if (n == 0) {
+	                            next(processedItems);
+	                        }
+	                    });
+					};
+					
+					if (canStartAnotherProcess()) {
+						process();
+					} else {
+						pendingProcesses.push(process);
+					}
                 });
             } else {
                 next(processedItems);
             }
         });
         return zo(items, pipeline);
-    };
-
-    var trampoline = function (f) {
-        var next;
-        do {
-            next = f();
-        } while (next);
     };
 
     var foldl = function (first, folder) {
@@ -82,24 +97,24 @@ function (items, pipeline) {
             });
             runPipeline(items, pipeline);
         },
-        map: function (mapper) {
+        map: function (mapper, options) {
             return pipelineElement(mapper, function (mappedItems, item, mappedItem) {
                 mappedItems.push(mappedItem);
-            });
+            }, options);
         },
         foldr: foldr,
         foldl: foldl,
         reduce: foldl,
         reduceRight: foldr,
-        select: function (selector) {
+        select: function (selector, options) {
             return pipelineElement(selector, function (selectedItems, item, itemSelected) {
                 if (itemSelected) selectedItems.push(item);
-            });
+            }, options);
         },
-        each: function (doForEach) {
+        each: function (doForEach, options) {
             return pipelineElement(doForEach, function (selectedItems, item, itemSelected) {
                 selectedItems.push(item);
-            });
+            }, options);
         },
     };
 };

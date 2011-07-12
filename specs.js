@@ -1,24 +1,58 @@
 var assert = require('assert');
-var zo = require('zo').zo;
+var zo = require('./zo').zo;
 require('../cupoftea/cupoftea');
 
-spec('integers', function () {
-    var i = 0;
+var assertCorrectResult = function (result) {
+    assert.deepEqual(result, [1, 2, 3, 4]);
+};
 
-    spec('should be zero', function () {
-        assert.equal(i, 0);
-    });
-
-    spec('should be greater than one', function () {
-        assert.equal(i, 0);
-    });
+spec('each', function () {
+	var list = [1, 2, 3, 4];
+	
+	spec('sync', function () {
+		var resultItems = [];
+		
+		zo([1, 2, 3, 4]).each(function (item, done) {
+			resultItems.push(item);
+			done();
+		}).results(shouldCall(function (items) {
+			assertCorrectResult(resultItems);
+		}));
+	});
+	
+	spec('async', function () {
+		var resultItems = [];
+		
+		zo([1, 2, 3, 4]).each(function (item, done) {
+			process.nextTick(function () {
+				resultItems.push(item);
+				done();
+			})
+		}).results(shouldCall(function (items) {
+			assertCorrectResult(resultItems);
+		}));
+	});
+	
+	spec('limits outstanding functions', function () {
+		var resultItems = [];
+		var outstanding = 0;
+		
+		zo([1, 2, 3, 4]).each(function (item, done) {
+			outstanding++;
+			assert.ok(outstanding <= 2, 'expected maximum of 2 outstanding functions, got ' + outstanding);
+			
+			process.nextTick(function () {
+				resultItems.push(item);
+				outstanding--;
+				done();
+			})
+		}, {limit: 2}).results(shouldCall(function (items) {
+			assertCorrectResult(resultItems);
+		}));
+	});
 });
 
 spec('reduce left', function () {
-    var assertCorrectResult = function (result) {
-        assert.deepEqual(result, [1, 2, 3, 4]);
-    };
-
     spec('async', function () {
         zo([1, 2, 3, 4]).reduce([], function(memo, item, into) {
           process.nextTick(function() {
@@ -64,6 +98,8 @@ spec('callstack', function () {
     for (var n = 0; n < numberOfItems; n++) {
         items.push(n);
     }
+
+	console.log('items');
 
     zo(items).reduce(0, function (memo, item, into) {
         into(memo + 1);
