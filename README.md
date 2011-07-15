@@ -18,7 +18,9 @@ Zo is a asynchronous query language providing the usual functional programming l
 
     zo([1, 2, 3])
         .map(function (item, mapTo) {
-            mapTo(item + 1);
+			process.nextTick(function () {
+	            mapTo(item + 1);
+			});
         })
         .results(function (mappedItems) {
             console.log(mappedItems);
@@ -30,7 +32,9 @@ Produces: `[ 2, 3, 4 ]`
 
     zo([1, 2, 3])
         .select(function (item, selectIf) {
-            selectIf(item > 1);
+			process.nextTick(function () {
+            	selectIf(item > 1);
+			});
         })
         .results(function (selectedItems) {
             console.log(selectedItems);
@@ -42,7 +46,9 @@ Produces: `[ 2, 3 ]`
 
     zo([1, 2, 3])
         .reduce(0, function (sum, item, reduceInto) {
-            reduceInto(sum + item);
+			process.nextTick(function () {
+            	reduceInto(sum + item);
+			});
         })
         .results(function (sum) {
             console.log(sum);
@@ -56,8 +62,10 @@ See also `reduceRight`, which is a synonym for `foldr`
 
     zo([1, 2, 3])
         .each(function (item, done) {
-            console.log('item: ' + item);
-            done();
+			process.nextTick(function () {
+	            console.log('item: ' + item);
+	            done();
+			});
         })
         .results(function (items) {
             console.log('count: ' + items.length);
